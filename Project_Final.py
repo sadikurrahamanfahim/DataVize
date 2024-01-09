@@ -6,6 +6,7 @@ import matplotlib.pyplot as pltstrea
 import seaborn as sns
 import plotly.express as px
 import streamlit as st
+import io
 
 def load_data(uploaded_file):
     """Reads the uploaded dataset and returns a Pandas DataFrame."""
@@ -17,12 +18,35 @@ def load_data(uploaded_file):
         return None
     
 def handle_missing_values(df, method="fill_mean"):
-    # Implement logic for handling missing values based on chosen method
+    if(method=="drop_tuples"):
+        df = df.dropna()
+        pass
+
+    if(method=="fill_with_mean"):
+        try:
+            df.fillna(df.mean(), inplace=True)
+            st.dataframe(df.head())
+        except Exception as e:
+            st.error(f"Cant perform operation without numeric value: {e}")
+            return None
+        pass
+
+    if(method=="fill_with_zero"):
+        df = df. fillna (0)
+        st.dataframe(df.head())
+        pass
+        
+    if(method=="interpolate"):
+        df = df. interpolate ()
+        st.dataframe(df.head())
+        pass
+    # Display data info
+    buffer = io.StringIO()
+    df.info(buf=buffer)
+    s = buffer.getvalue()
+    st.text(s)
     pass
 
-def outlier_detection(df):
-    # Implement logic for outlier detection and handling
-    pass
 
 # Define additional functions for other preprocessing tasks
 
@@ -39,21 +63,76 @@ def create_scatter_plot(df, x_column, y_column):
 # Set up the main layout
 st.title("Datavize")
 
-# Upload data
+#-------------------------------------
+#-------------------------------------
+#---------------UI--------------------
+#-------------------------------------
+#-------------------------------------
+#-------------------------------------
+
+# Uploading data
 uploaded_file = st.file_uploader("Choose a dataset to upload")
 if uploaded_file is not None:
     df = load_data(uploaded_file)
     # Display data preview
     st.dataframe(df.head())
+    # Display data info
+    buffer = io.StringIO()
+    df.info(buf=buffer)
+    s = buffer.getvalue()
+    st.text(s)
 
-    # Preprocessing options
-    preprocess_options = st.multiselect("Select preprocessing operations:", ["Handle missing values", "Outlier detection", ...])
+
+#---------------------------selecting operations------------------
+#--------------------------Preprocessing options------------------
+    preprocess_options = st.multiselect("Select preprocessing operations:", ["Handle missing values", "Outlier detection", "Data Transformation",...])
+#-------------------------------------------
+#--------Handiling missing values-----------
+#-------------------------------------------
     if "Handle missing values" in preprocess_options:
         # Handle missing values based on user input
+        preprocess_options = st.multiselect("Select method to remove missing values:", ["Drop Tuples", "Fill with mean", "Fill with Zero", "Interpolate Null Values"])
+        if "Drop Tuples" in preprocess_options:
+             handle_missing_values(df, method="drop_tuples")
+             pass
+        if "Fill with mean" in preprocess_options:
+             handle_missing_values(df, method="fill_with_mean")
+             pass
+        if "Fill with Zero" in preprocess_options:
+             handle_missing_values(df, method="fill_with_zero")
+             pass
+        if "Interpolate Null Values" in preprocess_options:
+             handle_missing_values(df, method="interpolate")
+             pass
+        
+#-------------------------------------------
+#------------OutLier Detection--------------
+#-------------------------------------------
+    if "Outlier detection" in preprocess_options:
+        try:
+            Values = st.text_input("Enter A clomun")
+            # Calculate IQR (Interquartile Range)
+            Q1 = df[Values].quantile(0.25)
+            Q3 = df[Values].quantile(0.75)
+            IQR = Q3 - Q1
+            # Define the lower and upper bounds for outliers
+            lower_bound = Q1 - 1.5 * IQR
+            upper_bound = Q3 + 1.5 * IQR
+            # Detect outliers
+            outliers = df[(df[Values] < lower_bound) | (df[Values] > upper_bound)]
+            st.write(outliers)
+        except Exception as e:
+            st.error(f"Enter Column Name: {e}")
         pass
-    # ... implement other preprocessing options
 
-    # Visualization options
+
+    if "Handle missing values" in preprocess_options:
+# ... implement other preprocessing options
+
+
+#-------------------------------------------------------------
+#----------------------Visualization options------------------
+#-------------------------------------------------------------
     visualization_options = st.multiselect("Select visualizations:", ["Histogram", "Scatter plot", ...])
     if "Histogram" in visualization_options:
         column = st.selectbox("Choose a column for the histogram:", df.columns)
