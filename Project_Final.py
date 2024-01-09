@@ -137,12 +137,16 @@ if uploaded_file is not None:
                   st.dataframe(df.head())
              pass
         if "One Hot Encoding" in preprocess_options:
-             # define one hot encoding
-             Color = st.text_input("Enter A clomun that contains categoriucal values")
-             one_hot_encoded = pd.get_dummies(df['Color'], prefix='Color')
-             # Concatenate the one-hot encoded columns with the original DataFrame
-             df = pd.concat([df, one_hot_encoded], axis=1)
              st.dataframe(df.head())
+             try:
+                 # define one hot encoding
+                 column_1 = st.text_input("Enter A clomun that contains categoriucal values")
+                 one_hot_encoded = pd.get_dummies(df[column_1], prefix=column_1)
+                 # Concatenate the one-hot encoded columns with the original DataFrame
+                 df = pd.concat([df, one_hot_encoded], axis=1)
+                 st.dataframe(df.head())
+             except Exception as e:
+                 st.error(f"Error loading data: {e}")
              pass
         if "Fill with Zero" in preprocess_options:
              handle_missing_values(df, method="fill_with_zero")
