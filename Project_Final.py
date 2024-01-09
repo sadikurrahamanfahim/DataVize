@@ -126,7 +126,7 @@ if uploaded_file is not None:
         pass
 
 #-------------------------------------------
-#------------Normalization------------------
+#------------Data transformation------------
 #-------------------------------------------
     if "Data Transformation" in preprocess_options:
         # Handle noisy data based on user input
