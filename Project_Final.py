@@ -85,7 +85,7 @@ if uploaded_file is not None:
 
 #---------------------------selecting operations------------------
 #--------------------------Preprocessing options------------------
-    preprocess_options = st.multiselect("Select preprocessing operations:", ["Handle missing values", "Outlier detection", "Data Transformation",...])
+    preprocess_options = st.multiselect("Select preprocessing operations:", ["Handle missing values", "Outlier detection", "Data Transformation"])
 #-------------------------------------------
 #--------Handiling missing values-----------
 #-------------------------------------------
@@ -125,8 +125,32 @@ if uploaded_file is not None:
             st.error(f"Enter Column Name: {e}")
         pass
 
-
-    if "Handle missing values" in preprocess_options:
+#-------------------------------------------
+#------------Normalization------------------
+#-------------------------------------------
+    if "Data Transformation" in preprocess_options:
+        # Handle noisy data based on user input
+        preprocess_options = st.multiselect("Select method to remove missing values:", ["Normalization with mix maxscaling", "One Hot Encoding", "Fill with Zero", "Interpolate Null Values"])
+        if "Normalization with mix maxscaling" in preprocess_options:
+             for column in df.columns:
+                  df[column] = (df[column] - df[column].min()) / (df[column].max() - df[column].min())
+                  st.dataframe(df.head())
+             pass
+        if "One Hot Encoding" in preprocess_options:
+             # define one hot encoding
+             Color = st.text_input("Enter A clomun that contains categoriucal values")
+             one_hot_encoded = pd.get_dummies(df['Color'], prefix='Color')
+             # Concatenate the one-hot encoded columns with the original DataFrame
+             df = pd.concat([df, one_hot_encoded], axis=1)
+             st.dataframe(df.head())
+             pass
+        if "Fill with Zero" in preprocess_options:
+             handle_missing_values(df, method="fill_with_zero")
+             pass
+        if "Interpolate Null Values" in preprocess_options:
+             handle_missing_values(df, method="interpolate")
+             pass
+        pass
 # ... implement other preprocessing options
 
 
