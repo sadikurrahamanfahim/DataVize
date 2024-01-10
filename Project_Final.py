@@ -7,6 +7,9 @@ import seaborn as sns
 import plotly.express as px
 import streamlit as st
 import io
+from sklearn.preprocessing import OrdinalEncoder
+import category_encoders as ce
+import matplotlib.pyplot as plt
 
 def load_data(uploaded_file):
     """Reads the uploaded dataset and returns a Pandas DataFrame."""
@@ -50,8 +53,10 @@ def handle_missing_values(df, method="fill_mean"):
 
 # Define additional functions for other preprocessing tasks
 
-def create_histogram(df, column):
-    # Create a histogram visualization for the specified column
+def create_distplot(df, column):
+    # Create a Graph Plot visualization for the specified column
+    plot=sns.distplot(df[column], bins=10, kde=True, rug=False)
+    st.pyplot(plot.get_figure())
     pass
 
 def create_scatter_plot(df, x_column, y_column):
@@ -130,7 +135,7 @@ if uploaded_file is not None:
 #-------------------------------------------
     if "Data Transformation" in preprocess_options:
         # Handle noisy data based on user input
-        preprocess_options = st.multiselect("Select method to remove missing values:", ["Normalization with mix maxscaling", "One Hot Encoding", "Fill with Zero", "Interpolate Null Values"])
+        preprocess_options = st.multiselect("Select method to remove missing values:", ["Normalization with mix maxscaling", "One Hot Encoding", "Ordinal Encoding", "Nominal Encoding"])
         if "Normalization with mix maxscaling" in preprocess_options:
              for column in df.columns:
                   df[column] = (df[column] - df[column].min()) / (df[column].max() - df[column].min())
@@ -140,19 +145,39 @@ if uploaded_file is not None:
              st.dataframe(df.head())
              try:
                  # define one hot encoding
-                 column_1 = st.text_input("Enter A clomun that contains categoriucal values")
-                 one_hot_encoded = pd.get_dummies(df[column_1], prefix=column_1)
+                 column = st.selectbox("Choose a column for the Graph Plot:", df.columns)
+                 one_hot_encoded = pd.get_dummies(df[column], prefix=column)
                  # Concatenate the one-hot encoded columns with the original DataFrame
                  df = pd.concat([df, one_hot_encoded], axis=1)
                  st.dataframe(df.head())
              except Exception as e:
                  st.error(f"Error loading data: {e}")
              pass
-        if "Fill with Zero" in preprocess_options:
-             handle_missing_values(df, method="fill_with_zero")
+        if "Ordinal Encoding" in preprocess_options:
+             st.dataframe(df.head())
+             try:
+                 # define one hot encoding
+                 column = st.selectbox("Choose a column for the Graph Plot:", df.columns)
+                 # Create an ordinal encoder instance
+                 ordinal_encoder = ce.OrdinalEncoder(cols=[column])
+                 # Apply ordinal encoding on the 'Size' column
+                 df[column+'_encoded'] = ordinal_encoder.fit_transform(df[column])
+
+                 st.dataframe(df.head())
+             except Exception as e:
+                 st.error(f"Error loading data: {e}")
              pass
-        if "Interpolate Null Values" in preprocess_options:
-             handle_missing_values(df, method="interpolate")
+        if "Nominal Encoding" in preprocess_options:
+             st.dataframe(df.head())
+             try:
+                 column = st.selectbox("Choose a column for the Graph Plot:", df.columns)
+                 # Perform one-hot encoding (Nominal encoding) on the 'Color' column
+                 nominal_encoded = pd.get_dummies(df[column], prefix=column)
+                 # Concatenate the nominal encoded columns with the original DataFrame
+                 df = pd.concat([df, nominal_encoded], axis=1)
+                 st.dataframe(df.head())
+             except Exception as e:
+                 st.error(f"Error loading data: {e}")
              pass
         pass
 # ... implement other preprocessing options
@@ -161,8 +186,10 @@ if uploaded_file is not None:
 #-------------------------------------------------------------
 #----------------------Visualization options------------------
 #-------------------------------------------------------------
-    visualization_options = st.multiselect("Select visualizations:", ["Histogram", "Scatter plot", ...])
-    if "Histogram" in visualization_options:
-        column = st.selectbox("Choose a column for the histogram:", df.columns)
-        create_histogram(df, column)
+    visualization_options = st.multiselect("Select visualizations:", ["Graph Plot", "Scatter plot", ...])
+    if "Graph Plot" in visualization_options:
+        column = st.selectbox("Choose a column for the Graph Plot:", df.columns)
+        create_distplot(df, column)
+        pass
+    
     # ... implement other visualization options
