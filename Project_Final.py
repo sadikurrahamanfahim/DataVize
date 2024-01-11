@@ -115,7 +115,7 @@ if uploaded_file is not None:
 #-------------------------------------------
     if "Outlier detection" in preprocess_options:
         try:
-            Values = st.text_input("Enter A clomun")
+            Values = st.selectbox("Choose a column", df.columns)
             # Calculate IQR (Interquartile Range)
             Q1 = df[Values].quantile(0.25)
             Q3 = df[Values].quantile(0.75)
@@ -186,10 +186,40 @@ if uploaded_file is not None:
 #-------------------------------------------------------------
 #----------------------Visualization options------------------
 #-------------------------------------------------------------
-    visualization_options = st.multiselect("Select visualizations:", ["Graph Plot", "Scatter plot", ...])
+    visualization_options = st.multiselect("Select visualizations:", ["Graph Plot on full DataSet","Graph Plot", "Bar Plot", "Violin Plot", ...])
     if "Graph Plot" in visualization_options:
         column = st.selectbox("Choose a column for the Graph Plot:", df.columns)
         create_distplot(df, column)
         pass
-    
+
+    if "Graph Plot on full DataSet" in visualization_options:
+        # Create a Graph Plot visualization for the specified column
+        plot=sns.distplot(df, bins=10, kde=True, rug=False)
+        st.pyplot(plot.get_figure())
+        pass
+
+    if "Bar Plot" in visualization_options:
+        column = st.selectbox("Choose a column for the Bar Plot:", df.columns)
+        # Create a Graph Plot visualization for the specified column
+        plt.boxplot(df[column])
+        plt.xlabel(column)
+        plt.ylabel('Value')
+        plt.title('Boxplot of '+column)
+        st.pyplot(plt.gcf())
+        pass
+
+    if "Violin Plot" in visualization_options:
+        column = st.selectbox("Choose a column for the Bar Plot:", df.columns)
+        try:
+            selected_attribute_values = df[column]
+            # Create a violin plot
+            sns.violinplot(x=selected_attribute_values)  # Create the violin plot
+            plt.title('Violin Plot of '+column)  # Set the title
+            plt.xlabel(column)  # Set the x-axis label
+            plt.ylabel('Values')  # Set the y-axis label
+            st.pyplot(plt.gcf())
+        except Exception as e:
+                 st.error(f"Error loading data: {e}")
+        pass
+
     # ... implement other visualization options
