@@ -186,7 +186,7 @@ if uploaded_file is not None:
 #-------------------------------------------------------------
 #----------------------Visualization options------------------
 #-------------------------------------------------------------
-    visualization_options = st.multiselect("Select visualizations:", ["Graph Plot on full DataSet","Graph Plot", "Bar Plot", "Violin Plot", ...])
+    visualization_options = st.multiselect("Select visualizations:", ["Graph Plot on full DataSet","Graph Plot", "Box Plot", "Violin Plot", "Line Plot", ...])
     if "Graph Plot" in visualization_options:
         column = st.selectbox("Choose a column for the Graph Plot:", df.columns)
         create_distplot(df, column)
@@ -198,8 +198,8 @@ if uploaded_file is not None:
         st.pyplot(plot.get_figure())
         pass
 
-    if "Bar Plot" in visualization_options:
-        column = st.selectbox("Choose a column for the Bar Plot:", df.columns)
+    if "Box Plot" in visualization_options:
+        column = st.selectbox("Choose a column for the Box Plot:", df.columns)
         # Create a Graph Plot visualization for the specified column
         plt.boxplot(df[column])
         plt.xlabel(column)
@@ -209,7 +209,7 @@ if uploaded_file is not None:
         pass
 
     if "Violin Plot" in visualization_options:
-        column = st.selectbox("Choose a column for the Bar Plot:", df.columns)
+        column = st.selectbox("Choose a column for the Violin Plot:", df.columns)
         try:
             selected_attribute_values = df[column]
             # Create a violin plot
@@ -217,6 +217,21 @@ if uploaded_file is not None:
             plt.title('Violin Plot of '+column)  # Set the title
             plt.xlabel(column)  # Set the x-axis label
             plt.ylabel('Values')  # Set the y-axis label
+            st.pyplot(plt.gcf())
+        except Exception as e:
+                 st.error(f"Error loading data: {e}")
+        pass
+
+    if "Line Plot" in visualization_options:
+        column = st.selectbox("Choose a column for the Line Plot:", df.columns)
+        try:
+            attribute_values = df[column]
+            # Plotting a line plot
+            plt.plot(attribute_values, marker='o', linestyle='-', color='b')  # Plotting the line
+            plt.title('Line Plot of '+column)  # Set the title
+            plt.xlabel('Index')  # Set the x-axis label
+            plt.ylabel(column)  # Set the y-axis label
+            plt.grid(True)  # Show grid
             st.pyplot(plt.gcf())
         except Exception as e:
                  st.error(f"Error loading data: {e}")
