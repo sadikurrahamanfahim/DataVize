@@ -186,7 +186,9 @@ if uploaded_file is not None:
 #-------------------------------------------------------------
 #----------------------Visualization options------------------
 #-------------------------------------------------------------
-    visualization_options = st.multiselect("Select visualizations:", ["Graph Plot on full DataSet","Graph Plot", "Box Plot", "Violin Plot", "Line Plot", ...])
+    visualization_options = st.multiselect("Select visualizations:", ["Graph Plot on full DataSet","Graph Plot", 
+                                                                      "Box Plot", "Violin Plot", "Line Plot", "Bar Plot", "Scatter Plot",
+                                                                      "Scatter Plot between Two Attributes","Multivariate Analysis", "Pair Plot"])
     if "Graph Plot" in visualization_options:
         column = st.selectbox("Choose a column for the Graph Plot:", df.columns)
         create_distplot(df, column)
@@ -237,4 +239,76 @@ if uploaded_file is not None:
                  st.error(f"Error loading data: {e}")
         pass
 
-    # ... implement other visualization options
+    if "Bar Plot" in visualization_options:
+        column = st.selectbox("Choose a column for the Bar Plot:", df.columns)
+        try:
+            selected_attribute = column
+            # Group by the selected attribute and count the occurrences
+            attribute_counts = df[selected_attribute].value_counts()
+            # Plotting a bar plot
+            plt.figure(figsize=(10, 6))  # Set the figure size
+            attribute_counts.plot(kind='bar', color='skyblue', edgecolor='black')  # Plotting the bar plot
+            plt.title(f'Bar Plot of {selected_attribute}')  # Set the title
+            plt.xlabel(selected_attribute)  # Set the x-axis label
+            plt.ylabel('Count')  # Set the y-axis label
+            plt.grid(axis='y')  # Show grid on the y-axis
+            st.pyplot(plt.gcf())
+        except Exception as e:
+                 st.error(f"Error loading data: {e}")
+        pass
+
+    if "Scatter Plot" in visualization_options:
+        try:
+            plot=sns.jointplot(df)
+            plt.xlabel('Values')  # Set the x-axis label
+            plt.ylabel('Values')  # Set the y-axis label
+            plt.grid(axis='y')
+            st.pyplot(plot.fig)
+        except Exception as e:
+                 st.error(f"Error loading data: {e}")
+        pass
+
+    if "Scatter Plot between Two Attributes" in visualization_options:
+        column_1 = st.selectbox("Choose column_1:", df.columns)
+        column_2 = st.selectbox("Choose column_2:", df.columns)
+        try:
+            x_values = df[column_1]
+            y_values = df[column_2]
+            # Plotting a scatter plot
+            plt.scatter(x_values, y_values, color='blue', marker='o', alpha=0.7)  # Plotting the scatter plot
+            plt.title('Scatter Plot of '+column_1 +' vs '+column_2 )  # Set the title
+            plt.xlabel('X')  # Set the x-axis label
+            plt.ylabel('Y')  # Set the y-axis label
+            plt.grid(True)  # Show grid
+            st.pyplot(plt.gcf())
+        except Exception as e:
+                 st.error(f"Error loading data: {e}")
+        pass
+
+    if "Pair Plot" in visualization_options:
+        try:
+            plot=sns.pairplot(df)
+            plt.xlabel('Attributes')  # Set the x-axis label
+            plt.ylabel('Attributes')  # Set the y-axis label
+            plt.grid(axis='y')
+            st.pyplot(plot.fig)
+        except Exception as e:
+                 st.error(f"Error loading data: {e}")
+        pass
+
+    if "Multivariate Analysis" in visualization_options:
+        column = st.selectbox("Choose column:", df.columns)
+        column_3 = st.selectbox("Choose Categorical column:", df.columns)
+        try:
+            # Create a pair plot for the selected attribute and other numeric columns
+            plot=sns.catplot(x=column, hue=column_3, kind="bar", data = df)
+            plt.suptitle(f'Multivariate Analysis for {column}', y=1.02)
+            plt.show()
+            st.pyplot(plot.fig)
+        except Exception as e:
+                 st.error(f"Error loading data: {e}")
+        pass
+
+# ... implement other visualization options
+
+
