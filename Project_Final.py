@@ -29,6 +29,7 @@ def handle_missing_values(df, method="fill_mean"):
     if(method=="drop_tuples"):
         df = df.dropna()
         pass
+    
 
     if(method=="fill_with_mean"):
         try:
