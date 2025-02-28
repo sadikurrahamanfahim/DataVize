@@ -316,62 +316,62 @@ if uploaded_file is not None:
 #-------------------------------------------
 #---------------Classification--------------
 #-------------------------------------------
-classification_options = st.multiselect("Select classification operations:", ["Decision tree", "KNN Classifier"])
+    classification_options = st.multiselect("Select classification operations:", ["Decision tree", "KNN Classifier"])
 
-if "Decision tree" in classification_options:
-     column = st.selectbox("Choose target column:", df.columns)
-     X = df.drop(column, axis=1)
-     y = df[column]
-     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-     unprunned_tree = DecisionTreeClassifier(criterion='gini')
-     unprunned_tree.fit(X_train, y_train)
-     y_pred = unprunned_tree.predict(X_test)
-     accuracy = accuracy_score(y_test, y_pred)
-     conf_matrix = confusion_matrix(y_test, y_pred)
-     class_report = classification_report(y_test, y_pred)
-     st.write("Accuracy: ")
-     st.write(accuracy)
-     st.write("Confusion Matrix: ")
-     st.write(conf_matrix)
-     st.write("Calssification Report: ")
-     st.write(class_report)
-     plt.figure(figsize=(12, 8))
-     plot_tree(unprunned_tree, filled=True, feature_names=X.columns, class_names=list(map(str, unprunned_tree.classes_)))
-     st.pyplot(plt.gcf())
-     pass
+    if "Decision tree" in classification_options:
+        column = st.selectbox("Choose target column:", df.columns)
+        X = df.drop(column, axis=1)
+        y = df[column]
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        unprunned_tree = DecisionTreeClassifier(criterion='gini')
+        unprunned_tree.fit(X_train, y_train)
+        y_pred = unprunned_tree.predict(X_test)
+        accuracy = accuracy_score(y_test, y_pred)
+        conf_matrix = confusion_matrix(y_test, y_pred)
+        class_report = classification_report(y_test, y_pred)
+        st.write("Accuracy: ")
+        st.write(accuracy)
+        st.write("Confusion Matrix: ")
+        st.write(conf_matrix)
+        st.write("Calssification Report: ")
+        st.write(class_report)
+        plt.figure(figsize=(12, 8))
+        plot_tree(unprunned_tree, filled=True, feature_names=X.columns, class_names=list(map(str, unprunned_tree.classes_)))
+        st.pyplot(plt.gcf())
+        pass
 
-if "KNN Classifier" in classification_options:
-     column = st.selectbox("Choose target column:", df.columns)
-     kneighbprs=int(st.text_input("Enter k values to determine neihbors: "))
-     try:
-          X = df.drop(column, axis=1)
-          y = df[column]
-          X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-          KNN = KNeighborsClassifier(n_neighbors=kneighbprs)
-          KNN.fit(X_train, y_train)
-          y_pred = KNN.predict(X_test)
-          accuracy = accuracy_score(y_test, y_pred)
-          conf_matrix = confusion_matrix(y_test, y_pred)
-          class_report = classification_report(y_test, y_pred)
-          st.write("Accuracy: ")
-          st.write(accuracy)
-          st.write("Confusion Matrix: ")
-          st.write(conf_matrix)
-          st.write("Calssification Report: ")
-          st.write(class_report)
-          error = []
-          # Calculating error for K values between 1 and 40
-          for i in range(1, kneighbprs):
-               knn = KNeighborsClassifier(n_neighbors=i)
-               knn.fit(X_train, y_train)
-               pred_i = knn.predict(X_test)
-               error.append(np.mean(pred_i != y_test))
+    if "KNN Classifier" in classification_options:
+        column = st.selectbox("Choose target column:", df.columns)
+        kneighbprs=int(st.text_input("Enter k values to determine neihbors: "))
+        try:
+            X = df.drop(column, axis=1)
+            y = df[column]
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+            KNN = KNeighborsClassifier(n_neighbors=kneighbprs)
+            KNN.fit(X_train, y_train)
+            y_pred = KNN.predict(X_test)
+            accuracy = accuracy_score(y_test, y_pred)
+            conf_matrix = confusion_matrix(y_test, y_pred)
+            class_report = classification_report(y_test, y_pred)
+            st.write("Accuracy: ")
+            st.write(accuracy)
+            st.write("Confusion Matrix: ")
+            st.write(conf_matrix)
+            st.write("Calssification Report: ")
+            st.write(class_report)
+            error = []
+            # Calculating error for K values between 1 and 40
+            for i in range(1, kneighbprs):
+                knn = KNeighborsClassifier(n_neighbors=i)
+                knn.fit(X_train, y_train)
+                pred_i = knn.predict(X_test)
+                error.append(np.mean(pred_i != y_test))
 
-          plt.plot(range(1, kneighbprs), error, color='red', linestyle='dashed', marker='o', markerfacecolor='blue', markersize=10)
-          plt.title('Error Rate K Value')
-          plt.xlabel('K Value')
-          plt.ylabel('Mean Error')
-          st.pyplot(plt.gcf())
-     except Exception as e:
-                 st.error(f"Error loading data: {e}")
-     pass
+            plt.plot(range(1, kneighbprs), error, color='red', linestyle='dashed', marker='o', markerfacecolor='blue', markersize=10)
+            plt.title('Error Rate K Value')
+            plt.xlabel('K Value')
+            plt.ylabel('Mean Error')
+            st.pyplot(plt.gcf())
+        except Exception as e:
+                    st.error(f"Error loading data: {e}")
+        pass
